@@ -159,6 +159,8 @@ def save_as_docx(minutes, filename):
   doc.save(filename)
   print("\n\n\033[94m[Santi]\033[0m Meeting minutes saved \033[92msuccessfully\033[0m.")
 
+os.system('clear')
+
 segments_quantity = 0
 audio_file_path = "EarningsCall.wav"
 
