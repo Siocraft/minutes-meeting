@@ -12,4 +12,5 @@ pip install python-docx
 
 pip install ffmpeg-downloader
 ffdl install --add-path
+pip install tqdm
 ```
