@@ -1,3 +1,4 @@
 .env
 env/
 segments/
+audio_text.txt
