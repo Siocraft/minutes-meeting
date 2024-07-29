@@ -9,4 +9,7 @@ source env/bin/activate
 
 pip install openai
 pip install python-docx
+
+pip install ffmpeg-downloader
+ffdl install --add-path
 ```
