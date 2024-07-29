@@ -4,7 +4,9 @@ from docx import Document
 from pydub import AudioSegment
 from tqdm import tqdm
 
-client = OpenAI()
+client = OpenAI(
+  api_key=os.environ.get("OPENAI_API_KEY"),
+)
 
 def divide_audio(input_file, segment_duration=60):
   audio = AudioSegment.from_wav(input_file)
