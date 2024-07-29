@@ -1,6 +1,8 @@
+import os
 from openai import OpenAI
 from docx import Document
 from pydub import AudioSegment
+from tqdm import tqdm
 
 client = OpenAI()
 
@@ -17,14 +19,17 @@ def divide_audio(input_file, segment_duration=60):
   global segments_quantity
   segments_quantity = i + 1
 
-  print(f"\033[92m[Santi]\033[0m Audio file divided into {segments_quantity} chunks.")
+  print(f"\033[94m[Santi]\033[0m Audio file divided into \033[92m{segments_quantity} chunks\033[0m.")
 
 def transcribe_single_audio(audio_file_path):
+  for i in tqdm(range(100), desc="\033[94m[Santi]\033[0m"):
+    pass
   with open(audio_file_path, 'rb') as audio_file:
     transcription = client.audio.transcriptions.create(
     model="whisper-1",
     file=audio_file,
   )
+  print("\033[94m[Santi]\033[0m Audio chunk file transcribed \033[92msuccessfully\033[0m.")
   return transcription.text
 
 def transcribe_audio(audio_file_path):
@@ -34,17 +39,21 @@ def transcribe_audio(audio_file_path):
   audio_text_file = open("audio_text.txt", "w")
   transcriptions = []
   for i, chunk in enumerate(audio_chunks):
-    print(f"Transcribing chunk {i+1}...")
-    with open(f"segments/chunk_{i+1}.wav", 'wb') as chunk_file:
+    print(f"\033[94m[Santi]\033[0m Transcribing audio chunk {i + 1}")
+    with open(f"segments/segment_{i+1}.wav", 'wb') as chunk_file:
       chunk_file.write(chunk)
-    transcription = transcribe_single_audio(f"segments/chunk_{i+1}.wav")
+    transcription = transcribe_single_audio(f"segments/segment_{i+1}.wav")
     transcriptions.append(transcription)
   
   all_transcriptions = ' '.join(transcriptions)
   audio_text_file.write(all_transcriptions)
+  print("\n\n\033[94m[Santi]\033[0m Complete audio transcribed \033[92msuccessfully\033[0m.\n\n")
   return all_transcriptions
 
 def abstract_summary_extraction(transcription):
+  print("\033[94m[Santi]\033[0m Extracting abstract summary...")
+  for i in tqdm(range(100), desc="\033[94m[Santi]\033[0m"):
+    pass
   response = client.chat.completions.create(
     model="gpt-4",
     temperature=0,
@@ -59,9 +68,13 @@ def abstract_summary_extraction(transcription):
       }
     ]
   )
+  print("\033[94m[Santi]\033[0m Abstract summary extracted \033[92msuccessfully\033[0m.")
   return response.choices[0].message.content
 
 def key_points_extraction(transcription):
+  print("\033[94m[Santi]\033[0m Extracting key points...")
+  for i in tqdm(range(100), desc="\033[94m[Santi]\033[0m"):
+    pass
   response = client.chat.completions.create(
     model="gpt-4",
     temperature=0,
@@ -76,9 +89,13 @@ def key_points_extraction(transcription):
       }
     ]
   )
+  print("\033[94m[Santi]\033[0m Key points extracted \033[92msuccessfully\033[0m.")
   return response.choices[0].message.content
 
 def action_item_extraction(transcription):
+  print("\033[94m[Santi]\033[0m Extracting action items...")
+  for i in tqdm(range(100), desc="\033[94m[Santi]\033[0m"):
+    pass
   response = client.chat.completions.create(
     model="gpt-4",
     temperature=0,
@@ -93,9 +110,13 @@ def action_item_extraction(transcription):
       }
     ]
   )
+  print("\033[94m[Santi]\033[0m Action items extracted \033[92msuccessfully\033[0m.")
   return response.choices[0].message.content
 
 def sentiment_analysis(transcription):
+  print("\033[94m[Santi]\033[0m Analyzing sentiment...")
+  for i in tqdm(range(100), desc="\033[94m[Santi]\033[0m"):
+    pass
   response = client.chat.completions.create(
     model="gpt-4",
     temperature=0,
@@ -110,6 +131,7 @@ def sentiment_analysis(transcription):
       }
     ]
   )
+  print("\033[94m[Santi]\033[0m Sentiment analyzed \033[92msuccessfully\033[0m.")
   return response.choices[0].message.content
 
 def meeting_minutes(transcription):
@@ -125,6 +147,7 @@ def meeting_minutes(transcription):
   }
 
 def save_as_docx(minutes, filename):
+  print("\n\n\033[94m[Santi]\033[0m Saving meeting minutes as a Word document in \033[92m.docx format\033[0m")
   doc = Document()
   for key, value in minutes.items():
     heading = ' '.join(word.capitalize() for word in key.split('_'))
@@ -132,13 +155,12 @@ def save_as_docx(minutes, filename):
     doc.add_paragraph(value)
     doc.add_paragraph()
   doc.save(filename)
+  print("\n\n\033[94m[Santi]\033[0m Meeting minutes saved \033[92msuccessfully\033[0m.")
 
 segments_quantity = 0
 audio_file_path = "EarningsCall.wav"
 
 transcription = transcribe_audio(audio_file_path)
 minutes = meeting_minutes(transcription)
-
-print(minutes)
 
 save_as_docx(minutes, 'meeting_minutes.docx')
