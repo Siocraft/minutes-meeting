@@ -61,7 +61,6 @@ def abstract_summary_extraction(transcription):
   )
   return response.choices[0].message.content
 
-
 def key_points_extraction(transcription):
   response = client.chat.completions.create(
     model="gpt-4",
@@ -78,7 +77,6 @@ def key_points_extraction(transcription):
     ]
   )
   return response.choices[0].message.content
-
 
 def action_item_extraction(transcription):
   response = client.chat.completions.create(
@@ -137,8 +135,10 @@ def save_as_docx(minutes, filename):
 
 segments_quantity = 0
 audio_file_path = "EarningsCall.wav"
+
 transcription = transcribe_audio(audio_file_path)
 minutes = meeting_minutes(transcription)
+
 print(minutes)
 
 save_as_docx(minutes, 'meeting_minutes.docx')
