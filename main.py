@@ -1,18 +1,25 @@
 from openai import OpenAI
 from docx import Document
+from pydub import AudioSegment
 
 client = OpenAI()
 
-def divide_audio(audio_file_path, chunk_size=26000000):
-  print(f"\033[94m[Santi]\033[0m Dividing audio file into chunks of size {chunk_size} bytes...")
-  with open(audio_file_path, 'rb') as audio_file:
-    audio_data = audio_file.read()
-  chunks = []
-  for i in range(0, len(audio_data), chunk_size):
-    chunk = audio_data[i:i+chunk_size]
-    print(f"\033[94m[Santi]\033[0m Chunk {i//chunk_size + 1} created with {len(chunk)} bytes.")
-    chunks.append(chunk)
-  print(f"\033[94m[Santi]\033[0m Audio file divided into \033[92m{len(chunks)}\033[0m chunks.")
+segments_quantity = 0
+
+def divide_audio(input_file, segment_duration=60):
+  audio = AudioSegment.from_wav(input_file)
+  print(f"\033[94m[Santi]\033[0m Dividing audio file into chunks of {segment_duration} seconds...")
+  segment_length_ms = segment_duration * 1000
+
+  for i, start_time in enumerate(range(0, len(audio), segment_length_ms)):
+    segment = audio[start_time:start_time + segment_length_ms]
+    output_file = f"segments/segment_{i + 1}.wav"
+    segment.export(output_file, format="wav")
+
+  global segments_quantity
+  segments_quantity = i + 1
+
+  print(f"\033[92m[Santi]\033[0m Audio file divided into {segments_quantity} chunks.")
 
 def transcribe_single_audio(audio_file_path):
   with open(audio_file_path, 'rb') as audio_file:
@@ -23,16 +30,21 @@ def transcribe_single_audio(audio_file_path):
   return transcription.text
 
 def transcribe_audio(audio_file_path):
-  audio_chunks = divide_audio(audio_file_path)
+  divide_audio(audio_file_path)
+  audio_chunks = [open(f"segments/segment_{i + 1}.wav", "rb").read() for i in range(segments_quantity)]
+
+  audio_text_file = open("audio_text.txt", "w")
   transcriptions = []
   for i, chunk in enumerate(audio_chunks):
     print(f"Transcribing chunk {i+1}...")
-    with open(f"chunk_{i}.wav", 'wb') as chunk_file:
+    with open(f"segments/chunk_{i+1}.wav", 'wb') as chunk_file:
       chunk_file.write(chunk)
-    transcription = transcribe_single_audio(f"chunk_{i}.wav")
+    transcription = transcribe_single_audio(f"segments/chunk_{i+1}.wav")
     transcriptions.append(transcription)
-  print("Transcription complete.")
-  return ' '.join(transcriptions)
+  
+  all_transcriptions = ' '.join(transcriptions)
+  audio_text_file.write(all_transcriptions)
+  return all_transcriptions
 
 def abstract_summary_extraction(transcription):
   response = client.chat.completions.create(
@@ -49,7 +61,7 @@ def abstract_summary_extraction(transcription):
       }
     ]
   )
-  return response.choices[0].message['content']
+  return response.choices[0].message.content
 
 
 def key_points_extraction(transcription):
@@ -125,7 +137,7 @@ def save_as_docx(minutes, filename):
     doc.add_paragraph()
   doc.save(filename)
 
-audio_file_path = "Earningscall.wav"
+audio_file_path = "EarningsCall.wav"
 transcription = transcribe_audio(audio_file_path)
 minutes = meeting_minutes(transcription)
 print(minutes)
