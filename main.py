@@ -4,8 +4,6 @@ from pydub import AudioSegment
 
 client = OpenAI()
 
-segments_quantity = 0
-
 def divide_audio(input_file, segment_duration=60):
   audio = AudioSegment.from_wav(input_file)
   print(f"\033[94m[Santi]\033[0m Dividing audio file into chunks of {segment_duration} seconds...")
@@ -137,6 +135,7 @@ def save_as_docx(minutes, filename):
     doc.add_paragraph()
   doc.save(filename)
 
+segments_quantity = 0
 audio_file_path = "EarningsCall.wav"
 transcription = transcribe_audio(audio_file_path)
 minutes = meeting_minutes(transcription)
