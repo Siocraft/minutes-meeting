@@ -159,12 +159,31 @@ def save_as_docx(minutes, filename):
   doc.save(filename)
   print("\n\n\033[94m[Santi]\033[0m Meeting minutes saved \033[92msuccessfully\033[0m.")
 
+def convert_m4a_to_wav(audio_file_path):
+  print("\033[94m[Santi]\033[0m Converting audio file to WAV format...")
+  os.system(f"ffmpeg -i {audio_file_path} -acodec pcm_s16le -ac 1 -ar 16000 {audio_file_path.replace('.m4a', '.wav')}")
+  print("\033[94m[Santi]\033[0m Audio file converted to WAV format \033[92msuccessfully\033[0m.")
+  return audio_file_path.replace('.m4a', '.wav')
+
+def get_audio_file_path():
+  audio_file_path = input("\033[94m[Santi]\033[0m Enter the path of the audio file: ")
+  if audio_file_path.endswith('.m4a'):
+    audio_file_path = convert_m4a_to_wav(audio_file_path)
+  return audio_file_path
+
+os.system('rm -rf segments')
+os.system('mkdir segments')
+os.system('rm audio_text.txt')
+os.system('rm meeting_minutes.docx')
 os.system('clear')
 
+print("\033[94m[Santi]\033[0m Welcome to \033[92mSanti\033[0m - Your AI Meeting Assistant")
+print("\033[94m[Santi]\033[0m Santi helps you taking minutes of any \033[95mmeeting\033[0m.\n\n")
+
 segments_quantity = 0
-audio_file_path = "EarningsCall.wav"
 
+audio_file_path = get_audio_file_path()
 transcription = transcribe_audio(audio_file_path)
-minutes = meeting_minutes(transcription)
+minutes_of_the_meeting = meeting_minutes(transcription)
 
-save_as_docx(minutes, 'meeting_minutes.docx')
+save_as_docx(minutes_of_the_meeting, 'meeting_minutes.docx')
