@@ -168,7 +168,7 @@ def convert_m4a_to_wav(audio_file_path):
   return audio_file_path.replace('.m4a', '.wav')
 
 def get_audio_file_path():
-  audio_file_path = input("{SANTI_PREFIX} Enter the path of the audio file: ")
+  audio_file_path = input(f"{SANTI_PREFIX} Enter the path of the audio file: ")
   if audio_file_path.endswith('.m4a'):
     audio_file_path = convert_m4a_to_wav(audio_file_path)
   return audio_file_path
