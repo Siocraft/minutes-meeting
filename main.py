@@ -189,3 +189,5 @@ transcription = transcribe_audio(audio_file_path)
 minutes_of_the_meeting = meeting_minutes(transcription)
 
 save_as_docx(minutes_of_the_meeting, 'meeting_minutes.docx')
+
+os.system('open meeting_minutes.docx')
