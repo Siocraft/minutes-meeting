@@ -8,9 +8,11 @@ client = OpenAI(
   api_key=os.environ.get("OPENAI_API_KEY"),
 )
 
+SANTI_PREFIX = "\033[94m[Santi]\033[0m"
+
 def divide_audio(input_file, segment_duration=60):
   audio = AudioSegment.from_wav(input_file)
-  print(f"\033[94m[Santi]\033[0m Dividing audio file into chunks of {segment_duration} seconds...")
+  print(f"{SANTI_PREFIX} Dividing audio file into chunks of {segment_duration} seconds...")
   segment_length_ms = segment_duration * 1000
 
   for i, start_time in enumerate(range(0, len(audio), segment_length_ms)):
@@ -21,7 +23,7 @@ def divide_audio(input_file, segment_duration=60):
   global segments_quantity
   segments_quantity = i + 1
 
-  print(f"\033[94m[Santi]\033[0m Audio file divided into \033[92m{segments_quantity} chunks\033[0m.")
+  print(f"{SANTI_PREFIX} Audio file divided into \033[92m{segments_quantity} chunks\033[0m.")
 
 def transcribe_single_audio(audio_file_path):
   for i in tqdm(range(100), desc="\033[94m[Santi]\033[0m"):
@@ -31,7 +33,7 @@ def transcribe_single_audio(audio_file_path):
     model="whisper-1",
     file=audio_file,
   )
-  print("\033[94m[Santi]\033[0m Audio chunk file transcribed \033[92msuccessfully\033[0m.")
+  print(f"{SANTI_PREFIX} Audio chunk file transcribed \033[92msuccessfully\033[0m.")
   return transcription.text
 
 def transcribe_audio(audio_file_path):
@@ -41,7 +43,7 @@ def transcribe_audio(audio_file_path):
   audio_text_file = open("audio_text.txt", "w")
   transcriptions = []
   for i, chunk in enumerate(audio_chunks):
-    print(f"\033[94m[Santi]\033[0m Transcribing audio chunk {i + 1}")
+    print(f"{SANTI_PREFIX} Transcribing audio chunk {i + 1}")
     with open(f"segments/segment_{i+1}.wav", 'wb') as chunk_file:
       chunk_file.write(chunk)
     transcription = transcribe_single_audio(f"segments/segment_{i+1}.wav")
@@ -49,11 +51,11 @@ def transcribe_audio(audio_file_path):
   
   all_transcriptions = ' '.join(transcriptions)
   audio_text_file.write(all_transcriptions)
-  print("\n\n\033[94m[Santi]\033[0m Complete audio transcribed \033[92msuccessfully\033[0m.\n\n")
+  print(f"\n\n{SANTI_PREFIX} Complete audio transcribed \033[92msuccessfully\033[0m.\n\n")
   return all_transcriptions
 
 def abstract_summary_extraction(transcription):
-  print("\033[94m[Santi]\033[0m Extracting abstract summary...")
+  print(f"{SANTI_PREFIX} Extracting abstract summary...")
   for i in tqdm(range(100), desc="\033[94m[Santi]\033[0m"):
     pass
   response = client.chat.completions.create(
@@ -70,11 +72,11 @@ def abstract_summary_extraction(transcription):
       }
     ]
   )
-  print("\033[94m[Santi]\033[0m Abstract summary extracted \033[92msuccessfully\033[0m.")
+  print(f"{SANTI_PREFIX} Abstract summary extracted \033[92msuccessfully\033[0m.")
   return response.choices[0].message.content
 
 def key_points_extraction(transcription):
-  print("\033[94m[Santi]\033[0m Extracting key points...")
+  print(f"{SANTI_PREFIX} Extracting key points...")
   for i in tqdm(range(100), desc="\033[94m[Santi]\033[0m"):
     pass
   response = client.chat.completions.create(
@@ -91,11 +93,11 @@ def key_points_extraction(transcription):
       }
     ]
   )
-  print("\033[94m[Santi]\033[0m Key points extracted \033[92msuccessfully\033[0m.")
+  print(f"{SANTI_PREFIX} Key points extracted \033[92msuccessfully\033[0m.")
   return response.choices[0].message.content
 
 def action_item_extraction(transcription):
-  print("\033[94m[Santi]\033[0m Extracting action items...")
+  print(f"{SANTI_PREFIX} Extracting action items...")
   for i in tqdm(range(100), desc="\033[94m[Santi]\033[0m"):
     pass
   response = client.chat.completions.create(
@@ -112,11 +114,11 @@ def action_item_extraction(transcription):
       }
     ]
   )
-  print("\033[94m[Santi]\033[0m Action items extracted \033[92msuccessfully\033[0m.")
+  print(f"{SANTI_PREFIX} Action items extracted \033[92msuccessfully\033[0m.")
   return response.choices[0].message.content
 
 def sentiment_analysis(transcription):
-  print("\033[94m[Santi]\033[0m Analyzing sentiment...")
+  print(f"{SANTI_PREFIX} Analyzing sentiment...")
   for i in tqdm(range(100), desc="\033[94m[Santi]\033[0m"):
     pass
   response = client.chat.completions.create(
@@ -133,7 +135,7 @@ def sentiment_analysis(transcription):
       }
     ]
   )
-  print("\033[94m[Santi]\033[0m Sentiment analyzed \033[92msuccessfully\033[0m.")
+  print(f"{SANTI_PREFIX} Sentiment analyzed \033[92msuccessfully\033[0m.")
   return response.choices[0].message.content
 
 def meeting_minutes(transcription):
@@ -149,7 +151,7 @@ def meeting_minutes(transcription):
   }
 
 def save_as_docx(minutes, filename):
-  print("\n\n\033[94m[Santi]\033[0m Saving meeting minutes as a Word document in \033[92m.docx format\033[0m")
+  print(f"\n\n{SANTI_PREFIX} Saving meeting minutes as a Word document in \033[92m.docx format\033[0m")
   doc = Document()
   for key, value in minutes.items():
     heading = ' '.join(word.capitalize() for word in key.split('_'))
@@ -157,16 +159,16 @@ def save_as_docx(minutes, filename):
     doc.add_paragraph(value)
     doc.add_paragraph()
   doc.save(filename)
-  print("\n\n\033[94m[Santi]\033[0m Meeting minutes saved \033[92msuccessfully\033[0m.")
+  print(f"\n\n{SANTI_PREFIX} Meeting minutes saved \033[92msuccessfully\033[0m.")
 
 def convert_m4a_to_wav(audio_file_path):
-  print("\033[94m[Santi]\033[0m Converting audio file to WAV format...")
+  print(f"{SANTI_PREFIX} Converting audio file to WAV format...")
   os.system(f"ffmpeg -i {audio_file_path} -acodec pcm_s16le -ac 1 -ar 16000 {audio_file_path.replace('.m4a', '.wav')}")
-  print("\033[94m[Santi]\033[0m Audio file converted to WAV format \033[92msuccessfully\033[0m.")
+  print(f"{SANTI_PREFIX} Audio file converted to WAV format \033[92msuccessfully\033[0m.")
   return audio_file_path.replace('.m4a', '.wav')
 
 def get_audio_file_path():
-  audio_file_path = input("\033[94m[Santi]\033[0m Enter the path of the audio file: ")
+  audio_file_path = input("{SANTI_PREFIX} Enter the path of the audio file: ")
   if audio_file_path.endswith('.m4a'):
     audio_file_path = convert_m4a_to_wav(audio_file_path)
   return audio_file_path
@@ -177,8 +179,8 @@ os.system('rm audio_text.txt')
 os.system('rm meeting_minutes.docx')
 os.system('clear')
 
-print("\033[94m[Santi]\033[0m Welcome to \033[92mSanti\033[0m - Your AI Meeting Assistant")
-print("\033[94m[Santi]\033[0m Santi helps you taking minutes of any \033[95mmeeting\033[0m.\n\n")
+print(f"{SANTI_PREFIX} Welcome to \033[92mSanti\033[0m - Your AI Meeting Assistant")
+print(f"{SANTI_PREFIX} Santi helps you taking minutes of any \033[95mmeeting\033[0m.\n\n")
 
 segments_quantity = 0
 
