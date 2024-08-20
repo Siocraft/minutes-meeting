@@ -1,10 +1,10 @@
 import os
+import sys
 from openai import OpenAI
 from docx import Document
 from pydub import AudioSegment
 from tqdm import tqdm
 
-# Check if the OpenAI API key is set
 if not os.environ.get("OPENAI_API_KEY"):
   print("ERROR: Set the OPENAI_API_KEY environment variable.")
   print("export OPENAI_API_KEY='your-api-key'")
@@ -189,6 +189,12 @@ def convert_m4a_to_wav(audio_file_path):
   return audio_file_path.replace('.m4a', '.wav')
 
 def get_audio_file_path():
+  if '-a' in sys.argv:
+    audio_file_path = sys.argv[sys.argv.index('-a') + 1]
+    if audio_file_path.endswith('.m4a'):
+      audio_file_path = convert_m4a_to_wav(audio_file_path)
+    return audio_file_path
+
   audio_file_path = input(f"{KAIROS_PREFIX} Enter the path of the audio file: ")
   if audio_file_path.endswith('.m4a'):
     audio_file_path = convert_m4a_to_wav(audio_file_path)
@@ -208,7 +214,6 @@ audio_text_file_path = audio_file_path.replace('.wav', '.txt').replace('audios',
 
 speech_file = audio_text_file_path.replace('.txt', '.mp3').replace('texts', 'speech')
 
-# os.system(f"touch {audio_text_file_path}")
 transcription = transcribe_audio(audio_file_path, audio_text_file_path)
 minutes_of_the_meeting = meeting_minutes(transcription)
 
@@ -216,5 +221,3 @@ text_to_speech(minutes_of_the_meeting['abstract_summary'], speech_file)
 
 docx_filename = audio_text_file_path.replace('.txt', '.docx')
 save_as_docx(minutes_of_the_meeting, docx_filename)
-
-os.system(f"open {docx_filename}")
