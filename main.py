@@ -4,6 +4,12 @@ from docx import Document
 from pydub import AudioSegment
 from tqdm import tqdm
 
+# Check if the OpenAI API key is set
+if not os.environ.get("OPENAI_API_KEY"):
+  print("ERROR: Set the OPENAI_API_KEY environment variable.")
+  print("export OPENAI_API_KEY='your-api-key'")
+  exit()
+
 client = OpenAI(
   api_key=os.environ.get("OPENAI_API_KEY"),
 )
