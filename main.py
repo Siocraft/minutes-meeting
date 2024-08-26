@@ -16,6 +16,10 @@ client = OpenAI(
 
 KAIROS_PREFIX = "\033[34m[Kairos]\033[0m"
 
+def show_loading():
+  for _ in tqdm(range(100), desc="\033[54m[Kairos]\033[0m"):
+    pass
+
 def divide_audio(input_file, segment_duration=60):
   audio = AudioSegment.from_wav(input_file)
   print(f"{KAIROS_PREFIX} Dividing audio file into chunks of {segment_duration} seconds...")
@@ -32,8 +36,7 @@ def divide_audio(input_file, segment_duration=60):
   print(f"{KAIROS_PREFIX} Audio file divided into \033[35m{segments_quantity} chunks\033[0m.")
 
 def transcribe_single_audio(audio_file_path):
-  for i in tqdm(range(100), desc="\033[54m[Kairos]\033[0m"):
-    pass
+  show_loading()
   with open(audio_file_path, 'rb') as audio_file:
     transcription = client.audio.transcriptions.create(
       model="whisper-1",
@@ -63,8 +66,7 @@ def transcribe_audio(audio_file_path, audio_text_file_path="audio_text.txt"):
 
 def abstract_summary_extraction(transcription):
   print(f"{KAIROS_PREFIX} Extracting abstract summary...")
-  for i in tqdm(range(100), desc="\033[54m[Kairos]\033[0m"):
-    pass
+  show_loading()
   response = client.chat.completions.create(
     model="gpt-4",
     temperature=0,
@@ -84,8 +86,7 @@ def abstract_summary_extraction(transcription):
 
 def key_points_extraction(transcription):
   print(f"{KAIROS_PREFIX} Extracting key points...")
-  for i in tqdm(range(100), desc="\033[54m[Kairos]\033[0m"):
-    pass
+  show_loading()
   response = client.chat.completions.create(
     model="gpt-4",
     temperature=0,
@@ -105,8 +106,7 @@ def key_points_extraction(transcription):
 
 def action_item_extraction(transcription):
   print(f"{KAIROS_PREFIX} Extracting action items...")
-  for i in tqdm(range(100), desc="\033[54m[Kairos]\033[0m"):
-    pass
+  show_loading()
   response = client.chat.completions.create(
     model="gpt-4",
     temperature=0,
@@ -126,8 +126,7 @@ def action_item_extraction(transcription):
 
 def sentiment_analysis(transcription):
   print(f"{KAIROS_PREFIX} Analyzing sentiment...")
-  for i in tqdm(range(100), desc="\033[54m[Kairos]\033[0m"):
-    pass
+  show_loading()
   response = client.chat.completions.create(
     model="gpt-4",
     temperature=0,
@@ -159,8 +158,7 @@ def meeting_minutes(transcription):
 
 def text_to_speech(text, filename):
   print(f"{KAIROS_PREFIX} Converting text to speech...")
-  for i in tqdm(range(100), desc="\033[54m[Kairos]\033[0m"):
-    pass
+  show_loading()
   response = client.audio.speech.create(
     model="tts-1",
     voice="alloy",
@@ -200,9 +198,14 @@ def get_audio_file_path():
     audio_file_path = convert_m4a_to_wav(audio_file_path)
   return audio_file_path
 
-os.system('rm -rf segments')
-os.system('mkdir segments')
-os.system('clear')
+def reset_state():
+  os.system('rm -rf texts')
+  os.system('rm -rf segments')
+  os.system('rm -rf speech')
+  os.system('mkdir texts')
+  os.system('mkdir segments')
+  os.system('mkdir speech')
+  os.system('clear')
 
 print(f"{KAIROS_PREFIX} Welcome to \033[34mKairos\033[0m - Your AI Meeting Assistant")
 print(f"{KAIROS_PREFIX} Kairos helps you taking minutes of any \033[35mmeeting\033[0m.\n\n")
@@ -221,3 +224,13 @@ text_to_speech(minutes_of_the_meeting['abstract_summary'], speech_file)
 
 docx_filename = audio_text_file_path.replace('.txt', '.docx')
 save_as_docx(minutes_of_the_meeting, docx_filename)
+
+print(f"\n\n{KAIROS_PREFIX} Time to generate the video.\n\n")
+
+print("\033[34m=========================== BEGIN OF ABSTRACT ===========================\033[0m")
+print("\033[34m" + minutes_of_the_meeting['abstract_summary'] + "\033[34m")
+print("\033[34m============================ END OF ABSTRACT ============================\033[0m")
+
+print("\n\n\033[34m=========================== BEGIN OF KEY POINTS ===========================\033[0m")
+print("\033[34m" + minutes_of_the_meeting['key_points'] + "\033[34m")
+print("\033[34m============================ END OF KEY POINTS ============================\033[0m")
