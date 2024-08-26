@@ -41,7 +41,7 @@ def transcribe_single_audio(audio_file_path):
     transcription = client.audio.transcriptions.create(
       model="whisper-1",
       file=audio_file,
-      prompt="TCS, FY (Financial Year), SAP",
+      prompt="TCS, FY (Financial Year), SAP, Guadalajara",
       language="en"
     )
   print(f"{KAIROS_PREFIX} Audio chunk file transcribed \033[35msuccessfully\033[0m.")
